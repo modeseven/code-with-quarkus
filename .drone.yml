@@ -14,8 +14,40 @@ steps:
     settings:
       repo: modeseven/scheduler-api
       dockerfile: src/main/docker/Dockerfile.fast-jar
-      tags: ${DRONE_COMMIT}
+      tags:
+        - ${DRONE_SOURCE_BRANCH/\//-}
+        - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      cache_from:
+        - modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}
       username:
         from_secret: dockerhub_username
       password:
         from_secret: dockerhub_password
+    when:
+      event:
+        exclude:
+          - tag
+  - name: Update staging GITOPS cluster
+    image: cloudowski/drone-kustomize
+    environment:
+      GIT:
+        from_secret: git
+      GIT_PW:
+        from_secret: git_pw
+    user: 0
+    commands:
+      - git version
+      - env
+      - echo $${GIT} $${GIT_PW}
+      - kustomize version
+      - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
+      - cd cluster/environments/staging/
+      - ls -l
+      # - cd deploy/overlays/dev    
+      - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      - ls -l
+      #- cat deployment.yml
+      - cat kustomization.yaml
+      - git add .
+      - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
+      - git push
