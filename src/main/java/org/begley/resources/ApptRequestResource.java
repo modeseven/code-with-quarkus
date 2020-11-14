@@ -22,7 +22,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import java.util.List;
 import java.util.Optional;
 
-@Path("api/apptrqst")
+@Path("apptrqst")
 public class ApptRequestResource {
 
     @Inject
