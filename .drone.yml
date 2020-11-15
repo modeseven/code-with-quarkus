@@ -42,6 +42,8 @@ steps:
       - git add .
       - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
       - git push
-    when:
-      branch:
-      - develop
+trigger:
+  branch:
+  - develop
+  event:
+  - push
