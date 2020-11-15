@@ -23,10 +23,18 @@ steps:
         from_secret: dockerhub_username
       password:
         from_secret: dockerhub_password
-    when:
-      event:
-        exclude:
-          - tag
+---
+kind: pipeline
+name: deploy staging
+type: kubernetes
+depends_on:
+  - buildimage
+trigger:
+  branch:
+  - develop
+  event:
+  - push
+steps:
   - name: Update staging GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
@@ -42,17 +50,12 @@ steps:
       - git add .
       - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
       - git push
-trigger:
-  branch:
-  - develop
-  event:
-  - push
-
 ---
 kind: pipeline
 name: deploy prod
 type: kubernetes
-
+depends_on:
+  - buildimage
 trigger:
   branch:
   - master
@@ -72,6 +75,6 @@ steps:
       - cd cluster/environments/production/
       - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       - git add .
-      - git tag -a v1 ${DRONE_COMMIT_SHA:0:8}
+      - git tag -a ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
       - git push
