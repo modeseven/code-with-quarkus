@@ -10,6 +10,7 @@ import org.jboss.logging.Logger;
 
 import io.nats.client.Connection;
 import io.nats.client.Nats;
+import io.nats.client.Connection.Status;
 import io.quarkus.runtime.StartupEvent;
 
 @ApplicationScoped
@@ -25,15 +26,24 @@ public class NatsBroker {
     void onStart(@Observes StartupEvent ev) {
         LOG.info("starting Nats NatsBroker...");
         try {
-            nats = Nats.connect("nats://"+config.host+":" + config.port);
+            nats = Nats.connect("nats://" + config.host + ":" + config.port);
             LOG.info("connected to NATS on:" + config.host + ":" + config.port);
         } catch (Exception e) {
             e.printStackTrace();
-        } 
+        }
     }
 
     public void publish(String subject, String message) {
         nats.publish(subject, message.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public boolean isLive() {
+        if (nats != null) {
+            if (nats.getStatus().equals(Status.CONNECTED)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
