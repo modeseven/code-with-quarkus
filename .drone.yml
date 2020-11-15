@@ -1,6 +1,6 @@
 kind: pipeline
 type: kubernetes
-name: default
+name: buildimage
 
 steps:
   - name: build
@@ -47,3 +47,31 @@ trigger:
   - develop
   event:
   - push
+
+---
+kind: pipeline
+name: deploy prod
+type: kubernetes
+
+trigger:
+  branch:
+  - master
+  event:
+  - push
+steps:
+  - name: Update prod GITOPS cluster
+    image: cloudowski/drone-kustomize
+    environment:
+      GIT:
+        from_secret: git
+      GIT_PW:
+        from_secret: git_pw
+    user: 0
+    commands:
+      - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
+      - cd cluster/environments/production/
+      - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      - git add .
+      - git tag -a v1 ${DRONE_COMMIT_SHA:0:8}
+      - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
+      - git push
