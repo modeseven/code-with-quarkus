@@ -36,18 +36,12 @@ steps:
         from_secret: git_pw
     user: 0
     commands:
-      - git version
-      - env
-      - echo $${GIT} $${GIT_PW}
-      - kustomize version
       - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
       - cd cluster/environments/staging/
-      - ls -l
-      # - cd deploy/overlays/dev    
       - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-      - ls -l
-      #- cat deployment.yml
-      - cat kustomization.yaml
       - git add .
       - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
       - git push
+    when:
+      branch:
+      - develop
