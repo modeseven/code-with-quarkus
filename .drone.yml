@@ -9,9 +9,10 @@ volumes:
 
 steps:
   - name: testd
-    image: docker:dind
+    image: docker
     commands:
-      - docker ps -a
+      - timeout 15s sh -c -- 'while (! docker info > /dev/null 2>&1); do :; done;' || true
+      - docker info
     volumes:
       - name: dockersock
         path: /var/run/
