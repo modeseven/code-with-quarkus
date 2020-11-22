@@ -9,18 +9,7 @@ steps:
     commands:
       - chmod +rwx ./mvnw
       - ./mvnw package -Dquarkus.package.type=fast-jar 
----
-kind: pipeline
-name: deploy staging
-type: kubernetes
-depends_on:
-  - buildimage
-trigger:
-  branch:
-  - develop
-  event:
-  - push
-steps:
+
   - name: docker
     image: plugins/docker
     settings:
@@ -39,6 +28,18 @@ steps:
       event:
         - push
         - tag
+---
+kind: pipeline
+name: deploy staging
+type: kubernetes
+depends_on:
+  - buildimage
+trigger:
+  branch:
+  - develop
+  event:
+  - push
+steps:
   - name: Update staging GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
@@ -63,6 +64,7 @@ trigger:
   - promote
   target:
   - production
+
 
 volumes:
   - name: dockersock
