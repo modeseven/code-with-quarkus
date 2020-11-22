@@ -97,6 +97,8 @@ steps:
     - docker ps -a  
     - echo promote to prod ${DRONE_COMMIT_SHA:0:8}
     - docker login -u=$${DOCKER_LOGIN} -p=$${DOCKER_PASSWORD}
+    - docker pull modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:prod-${DRONE_COMMIT_SHA:0:8} 
   # - name: Update prod GITOPS cluster
   #   image: cloudowski/drone-kustomize
   #   environment:
