@@ -96,8 +96,7 @@ steps:
     - sleep 15 # give docker enough time to start
     - docker ps -a  
     - echo promote to prod ${DRONE_COMMIT_SHA:0:8}
-    - docker login
-   # - docker login -u="$${DOCKER_LOGIN}"" -p="$${DOCKER_PASSWORD}""
+    - docker login -u=$${DOCKER_LOGIN} -p=$${DOCKER_PASSWORD}
   # - name: Update prod GITOPS cluster
   #   image: cloudowski/drone-kustomize
   #   environment:
