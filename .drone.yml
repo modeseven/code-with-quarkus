@@ -5,16 +5,16 @@ name: buildimage
 volumes:
   - name: dockersock
     host:
-      path: /var/run/docker.sock
+      path: /var/run/
 
 steps:
   - name: testd
-    image: docker:dind
+    image: docker
     commands:
       - docker ps -a
     volumes:
       - name: dockersock
-        path: /var/run/docker.sock
+        path: /var/run/
     # settings:
     #   repo: modeseven/scheduler-api
     #   dockerfile: src/main/docker/Dockerfile.fast-jar
