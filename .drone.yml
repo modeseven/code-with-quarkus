@@ -9,7 +9,7 @@ volumes:
 
 steps:
   - name: testd
-    image: docker
+    image: docker:dind
     commands:
       - docker ps -a
     volumes:
