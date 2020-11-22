@@ -1,73 +1,73 @@
-# kind: pipeline
-# type: kubernetes
-# name: buildimage
+kind: pipeline
+type: kubernetes
+name: buildimage
 
-# steps:
-#   - name: build
-#     image: adoptopenjdk/openjdk11
-#     user: 0
-#     commands:
-#       - chmod +rwx ./mvnw
-#       - ./mvnw package -Dquarkus.package.type=fast-jar 
-#     when:
-#       event:
-#         exclude:
-#         - promote
+steps:
+  - name: build
+    image: adoptopenjdk/openjdk11
+    user: 0
+    commands:
+      - chmod +rwx ./mvnw
+      - ./mvnw package -Dquarkus.package.type=fast-jar 
+    when:
+      event:
+        exclude:
+        - promote
 
-#   - name: docker
-#     image: plugins/docker
-#     settings:
-#       repo: modeseven/scheduler-api
-#       dockerfile: src/main/docker/Dockerfile.fast-jar
-#       tags:
-#         - ${DRONE_SOURCE_BRANCH/\//-}
-#         - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-#       cache_from:
-#         - modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}
-#       username:
-#         from_secret: dockerhub_username
-#       password:
-#         from_secret: dockerhub_password
-#     when:
-#       event:
-#         exclude:
-#         - promote
-# ---
-# kind: pipeline
-# name: deploy staging
-# type: kubernetes
-# depends_on:
-#   - buildimage
-# trigger:
-#   branch:
-#   - develop
-#   event:
-#   - push
-# steps:
-#   - name: Update staging GITOPS cluster
-#     image: cloudowski/drone-kustomize
-#     environment:
-#       GIT:
-#         from_secret: git
-#       GIT_PW:
-#         from_secret: git_pw
-#     user: 0
-#     commands:
-#       - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
-#       - cd cluster/environments/staging/
-#       - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-#       - git add .
-#       - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
-#       - git push
-# ---
+  - name: docker
+    image: plugins/docker
+    settings:
+      repo: modeseven/scheduler-api
+      dockerfile: src/main/docker/Dockerfile.fast-jar
+      tags:
+        - ${DRONE_SOURCE_BRANCH/\//-}
+        - ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      cache_from:
+        - modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}
+      username:
+        from_secret: dockerhub_username
+      password:
+        from_secret: dockerhub_password
+    when:
+      event:
+        exclude:
+        - promote
+---
+kind: pipeline
+name: deploy staging
+type: kubernetes
+depends_on:
+  - buildimage
+trigger:
+  branch:
+  - develop
+  event:
+  - push
+steps:
+  - name: Update staging GITOPS cluster
+    image: cloudowski/drone-kustomize
+    environment:
+      GIT:
+        from_secret: git
+      GIT_PW:
+        from_secret: git_pw
+    user: 0
+    commands:
+      - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
+      - cd cluster/environments/staging/
+      - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
+      - git add .
+      - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
+      - git push
+---
 kind: pipeline
 name: deploy prod
 type: kubernetes
-# trigger:
-#   event:
-#   - promote
-#   target:
-#   - production
+trigger:
+  event:
+  - promote
+  target:
+  - production
 
 volumes:
   - name: dockersock
