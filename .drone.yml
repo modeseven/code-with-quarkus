@@ -85,9 +85,9 @@ steps:
   - name: promoteimage
     image: docker:dind
     environment:
-      DUSER:
+      DOCKER_LOGIN:
         from_secret: dockerhub_username
-      DPW:
+      DOCKER_PASSWORD:
         from_secret: dockerhub_password
     volumes:
     - name: dockersock
@@ -96,7 +96,8 @@ steps:
     - sleep 15 # give docker enough time to start
     - docker ps -a  
     - echo promote to prod ${DRONE_COMMIT_SHA:0:8}
-    - docker login -u="$${DUSER}"" -p="$${DPW}""
+    - docker login
+   # - docker login -u="$${DOCKER_LOGIN}"" -p="$${DOCKER_PASSWORD}""
   # - name: Update prod GITOPS cluster
   #   image: cloudowski/drone-kustomize
   #   environment:
