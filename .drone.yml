@@ -2,14 +2,19 @@ kind: pipeline
 type: kubernetes
 name: buildimage
 
-steps:
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
 
+steps:
   - name: testd
-    image: docker
+    image: docker:dind
     commands:
-      - docker ps
+      - docker ps -a
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - name: dockersock
+        path: /var/run/docker.sock
     # settings:
     #   repo: modeseven/scheduler-api
     #   dockerfile: src/main/docker/Dockerfile.fast-jar
