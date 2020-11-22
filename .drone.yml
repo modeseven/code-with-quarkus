@@ -15,9 +15,6 @@ services:
     path: /var/run
 
 steps:
-
-
-
   - name: build
     image: adoptopenjdk/openjdk11
     user: 0
@@ -69,7 +66,7 @@ steps:
   #     event:
   #       - push
   #       - tag
----
+# ---
 # kind: pipeline
 # name: deploy staging
 # type: kubernetes
