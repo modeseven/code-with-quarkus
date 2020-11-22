@@ -101,19 +101,18 @@ steps:
     - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8} 
     - docker push  modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8} 
     - echo did it do it?
-  # - name: Update prod GITOPS cluster
-  #   image: cloudowski/drone-kustomize
-  #   environment:
-  #     GIT:
-  #       from_secret: git
-  #     GIT_PW:
-  #       from_secret: git_pw
-  #   user: 0
-  #   commands:
-  #     - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
-  #     - cd cluster/environments/production/
-  #     - kustomize edit set image modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-  #     - git add .
-  #     - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}"
-  #     # - git tag -a ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-  #     - git push
+  - name: Update prod GITOPS cluster
+    image: cloudowski/drone-kustomize
+    environment:
+      GIT:
+        from_secret: git
+      GIT_PW:
+        from_secret: git_pw
+    user: 0
+    commands:
+      - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
+      - cd cluster/environments/production/
+      - kustomize edit set image modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
+      - git add .
+      - git commit -m "Drone updated modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}"
+      - git push
