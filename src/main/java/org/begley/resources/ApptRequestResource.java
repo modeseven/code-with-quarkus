@@ -19,10 +19,12 @@ import org.begley.domain.AppointmentRequest;
 import org.begley.domain.AppointmentStatus;
 import org.begley.domain.AppointmentType;
 import org.begley.domain.BookingRequest;
+import org.begley.domain.ScheduleSlot;
 import org.begley.services.NatsBroker;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,6 +64,10 @@ public class ApptRequestResource {
             apptrqst.firstName = faker.name().firstName();
             apptrqst.lastName =  faker.name().lastName();
             apptrqst.subjectId = faker.idNumber().ssnValid();
+            apptrqst.street = faker.address().streetName();
+            apptrqst.city = faker.address().city();
+            apptrqst.state = faker.address().state();
+            apptrqst.zip = faker.address().zipCode();
             apptrqst.appointmentType = AppointmentType.GREET.randomType();
         }       
         apptrqst.appointmentStatus = AppointmentStatus.QUEUED;
@@ -77,8 +83,17 @@ public class ApptRequestResource {
     public Response bookingRequest(BookingRequest bookrqst) {
         return AppointmentRequest.findByIdOptional(bookrqst.id)
             .map(u -> {
+
+                ScheduleSlot ss = new ScheduleSlot();
+
                 AppointmentRequest appt = (AppointmentRequest) u;
                 appt.appointmentStatus = AppointmentStatus.BOOKED;
+
+                ss.appointmentType = appt.appointmentType;
+                ss.zip = appt.zip;
+                ss.appointmentDateTime = LocalDateTime.now();
+
+                appt.scheduleSlot = ss;
                 appt.persist();
                 nats.publish("bookingRqst", bookrqst.toString());
                 return Response.ok( u);
