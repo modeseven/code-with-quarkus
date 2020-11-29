@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response.Status;
 import com.github.javafaker.Faker;
 
 import org.begley.domain.AppointmentRequest;
+import org.begley.domain.AppointmentStatus;
+import org.begley.domain.AppointmentType;
 import org.begley.domain.BookingRequest;
 import org.begley.services.NatsBroker;
 
@@ -54,14 +56,15 @@ public class ApptRequestResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response newApptRqst(AppointmentRequest apptrqst) {
+        // generate fake identity name if -1
         if(apptrqst.id == -1) {
             Faker faker = new Faker();
             apptrqst.firstName = faker.name().firstName();
             apptrqst.lastName =  faker.name().lastName();
             apptrqst.subjectId = faker.idNumber().ssnValid();
-        }
-
-        apptrqst.status = "Q";
+            apptrqst.appointmentType = AppointmentType.GREET.randomType();
+        }       
+        apptrqst.appointmentStatus = AppointmentStatus.QUEUED;
         apptrqst.id = null;
         apptrqst.persist();
         return Response.status(Status.CREATED).entity(apptrqst).build();
@@ -74,6 +77,9 @@ public class ApptRequestResource {
     public Response bookingRequest(BookingRequest bookrqst) {
         return AppointmentRequest.findByIdOptional(bookrqst.id)
             .map(u -> {
+                AppointmentRequest appt = (AppointmentRequest) u;
+                appt.appointmentStatus = AppointmentStatus.BOOKED;
+                appt.persist();
                 nats.publish("bookingRqst", bookrqst.toString());
                 return Response.ok( u);
             })

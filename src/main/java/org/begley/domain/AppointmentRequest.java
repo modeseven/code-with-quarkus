@@ -2,12 +2,14 @@ package org.begley.domain;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+
 
 /**
  * AppointmentRequest
@@ -21,10 +23,15 @@ public class AppointmentRequest extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updateDateTime;
 
-
-    public String status;
-    public String apptType;
+  
     public String subjectId;
     public String firstName;
-    public String lastName;    
+    public String lastName; 
+
+    @Convert(converter = AppointmentTypeConverter.class)    
+    public AppointmentType appointmentType;
+
+    @Convert(converter = AppointmentStatusConverter.class)    
+    public AppointmentStatus appointmentStatus;
+    
 }
