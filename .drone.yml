@@ -100,7 +100,6 @@ steps:
     - docker pull modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
     - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8} 
     - docker push  modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8} 
-    - echo did it do it?
   - name: Update prod GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
