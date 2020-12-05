@@ -11,7 +11,7 @@ steps:
       - ./mvnw package -Dquarkus.package.type=fast-jar 
 
 
-  - name: docker
+  - name: build and publish docker image
     image: plugins/docker
     settings:
       repo: modeseven/scheduler-api
@@ -41,7 +41,7 @@ trigger:
   event:
   - push
 steps:
-  - name: Update staging GITOPS cluster
+  - name: update staging GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
       GIT:
