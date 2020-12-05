@@ -60,6 +60,10 @@ steps:
 kind: pipeline
 name: deploy prod
 type: kubernetes
+
+clone:
+  disable: true
+
 trigger:
   event:
   - promote
@@ -79,7 +83,7 @@ services:
     path: /var/run
 
 steps:
-  - name: promoteimage
+  - name: pull and promote image
     image: docker:dind
     environment:
       DOCKER_LOGIN:
@@ -95,7 +99,8 @@ steps:
     - echo promote to prod ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
     - docker login -u=$${DOCKER_LOGIN} -p=$${DOCKER_PASSWORD}
     - docker pull modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8} 
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:latest
     - docker push  modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8} 
   - name: Update prod GITOPS cluster
     image: cloudowski/drone-kustomize
