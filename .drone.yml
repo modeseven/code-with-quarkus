@@ -15,7 +15,7 @@ steps:
       - chmod +rwx ./mvnw
       - ./mvnw package -Dquarkus.package.type=fast-jar 
 
-  - name: docker
+  - name: build and publish docker image
     image: plugins/docker
     settings:
       repo: modeseven/${DRONE_REPO_NAME}
