@@ -98,9 +98,9 @@ steps:
     - echo promote to prod ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
     - docker login -u=$${DOCKER_LOGIN} -p=$${DOCKER_PASSWORD}
     - docker pull modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
-    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:latest
-    - docker push  modeseven/scheduler-api-prod
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:${DRONE_TAG}
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:latest
+    - docker push  modeseven/scheduler-api
   - name: Update prod GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
@@ -112,7 +112,7 @@ steps:
     commands:
       - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
       - cd cluster/environments/production/
-      - kustomize edit set image modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
+      - kustomize edit set image modeseven/scheduler-api:${DRONE_TAG}
       - git add .
-      - git commit -m "Drone updated modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}"
+      - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_TAG}"
       - git push
