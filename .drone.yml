@@ -67,9 +67,8 @@ clone:
 
 trigger:
   event:
-  - promote
+  - tag
   target:
-  - production
 
 volumes:
   - name: dockersock
