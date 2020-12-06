@@ -68,7 +68,6 @@ clone:
 trigger:
   event:
   - tag
-  target:
 
 volumes:
   - name: dockersock
@@ -94,14 +93,14 @@ steps:
     - name: dockersock
       path: /var/run
     commands:
-    - sleep 15 # start up
+    - sleep 15 # give docker enough time to start
     - docker ps -a  
     - echo promote to prod ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
     - docker login -u=$${DOCKER_LOGIN} -p=$${DOCKER_PASSWORD}
     - docker pull modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:${DRONE_TAG}
-    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:latest
-    - docker push modeseven/scheduler-api
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api-prod:latest
+    - docker push  modeseven/scheduler-api-prod
   - name: Update prod GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
@@ -113,7 +112,7 @@ steps:
     commands:
       - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
       - cd cluster/environments/production/
-      - kustomize edit set image modeseven/scheduler-api:${DRONE_TAG}
+      - kustomize edit set image modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
       - git add .
-      - git commit -m "Drone updated modeseven/scheduler-api:${DRONE_TAG}"
+      - git commit -m "Drone updated modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}"
       - git push
