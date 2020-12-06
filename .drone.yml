@@ -3,9 +3,12 @@ type: kubernetes
 name: buildimage
 
 trigger:
+  branch:
+    - master
   event:
+    - push
     exclude:
-      - promote
+    - tag
 
 steps:
   - name: build
@@ -37,7 +40,7 @@ depends_on:
   - buildimage
 trigger:
   branch:
-  - develop
+  - master
   event:
   - push
 steps:
