@@ -112,7 +112,7 @@ steps:
     commands:
       - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
       - cd cluster/environments/production/
-      - kustomize edit set image modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}
+      - kustomize edit set image modeseven/scheduler-api-prod:prod-${DRONE_TAG}
       - git add .
-      - git commit -m "Drone updated modeseven/scheduler-api-prod:prod-${DRONE_COMMIT_SHA:0:8}"
+      - git commit -m "Drone updated modeseven/scheduler-api-prod:prod-${DRONE_TAG}"
       - git push
