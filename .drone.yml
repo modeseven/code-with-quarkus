@@ -98,7 +98,7 @@ steps:
     - echo promote to prod ${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
     - docker login -u=$${DOCKER_LOGIN} -p=$${DOCKER_PASSWORD}
     - docker pull modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
-    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:${DRONE_TAG}
+    - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:$${DRONE_TAG}
     - docker tag modeseven/scheduler-api:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8} modeseven/scheduler-api:latest
     - docker push  modeseven/scheduler-api
   - name: Update prod GITOPS cluster
