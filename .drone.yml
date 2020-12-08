@@ -3,7 +3,7 @@ type: kubernetes
 name: buildimage
 
 node_selector:
-  hostname: proteus
+   kubernetes.io/hostname: proteus
 
 trigger:
   branch:
@@ -39,8 +39,8 @@ name: deploy staging
 type: kubernetes
 
 node_selector:
-  hostname: proteus
-  
+   kubernetes.io/hostname: proteus
+
 depends_on:
   - buildimage
 trigger:
