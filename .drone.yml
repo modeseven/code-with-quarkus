@@ -2,6 +2,9 @@ kind: pipeline
 type: kubernetes
 name: buildimage
 
+node_selector:
+  hostname: proteus
+
 trigger:
   branch:
     - master
@@ -34,6 +37,10 @@ steps:
 kind: pipeline
 name: deploy staging
 type: kubernetes
+
+node_selector:
+  hostname: proteus
+  
 depends_on:
   - buildimage
 trigger:
