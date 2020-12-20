@@ -65,7 +65,7 @@ trigger:
   - push
 steps:
   - name: Update staging GITOPS cluster
-    image: cloudowski/drone-kustomize
+    image: modeseven/git-kustomize
     environment:
       GIT:
         from_secret: git
