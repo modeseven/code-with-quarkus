@@ -77,8 +77,8 @@ steps:
     commands:
       - # write the ssh key to disk
       - mkdir /root/.ssh
-      - echo $${SSH_KEY}
-      - echo -n $${SSH_KEY} > /root/.ssh/id_rsa
+      - echo "$${SSH_KEY}"
+      - echo -n "$${SSH_KEY}" > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
 
       # add github to known hosts
