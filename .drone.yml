@@ -2,9 +2,6 @@ kind: pipeline
 type: kubernetes
 name: buildimage
 
-node_selector:
-   kubernetes.io/hostname: proteus
-
 trigger:
   branch:
     - master
@@ -53,8 +50,8 @@ kind: pipeline
 name: deploy staging
 type: kubernetes
 
-node_selector:
-   kubernetes.io/hostname: proteus
+#node_selector:
+#   kubernetes.io/hostname: proteus
 
 depends_on:
   - buildimage
@@ -67,10 +64,6 @@ steps:
   - name: Update staging GITOPS cluster
     image: modeseven/git-kustomize
     environment:
-      GIT:
-        from_secret: git
-      GIT_PW:
-        from_secret: git_pw
       SSH_KEY:
         from_secret: id_rsa
     user: 0
@@ -138,13 +131,21 @@ steps:
   - name: Update prod GITOPS cluster
     image: cloudowski/drone-kustomize
     environment:
-      GIT:
-        from_secret: git
-      GIT_PW:
-        from_secret: git_pw
+      SSH_KEY:
+        from_secret: id_rsa
     user: 0
     commands:
-      - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
+      - # write the ssh key to disk
+      - mkdir /root/.ssh
+      - echo "$SSH_KEY"
+      - echo -n "$SSH_KEY" > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
+
+      # add github to known hosts
+      - touch /root/.ssh/known_hosts
+      - chmod 600 /root/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone git@github.com:modeseven/cluster.git
       - cd cluster/environments/production/
       - kustomize edit set image modeseven/${DRONE_REPO_NAME}:$${DRONE_TAG}
       - git add .
