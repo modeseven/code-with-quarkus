@@ -72,14 +72,14 @@ steps:
       GIT_PW:
         from_secret: git_pw
       SSH_KEY:
-        from_secret: gitkey
+        from_secret: id_rsa
     user: 0
     commands:
       - # write the ssh key to disk
       - mkdir /root/.ssh
       - echo "$SSH_KEY"
-      - echo -n "$SSH_KEY" > /root/.ssh/id_ed25519
-      - chmod 600 /root/.ssh/id_ed25519
+      - echo -n "$SSH_KEY" > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
 
       # add github to known hosts
       - touch /root/.ssh/known_hosts
