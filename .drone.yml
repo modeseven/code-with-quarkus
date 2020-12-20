@@ -20,7 +20,7 @@ steps:
     commands:
       # write the ssh key to disk
       - mkdir /root/.ssh
-      - echo -n "$SSH_KEY" > /root/.ssh/id_rsa
+      - echo -n "$${SSH_KEY}" > /root/.ssh/id_rsa
       - chmod 600 /root/.ssh/id_rsa
 
       # add github to known hosts
@@ -71,9 +71,20 @@ steps:
         from_secret: git
       GIT_PW:
         from_secret: git_pw
+      SSH_KEY:
+        from_secret: gitkey
     user: 0
     commands:
-      - git clone https://$${GIT}:$${GIT_PW}@github.com/modeseven/cluster.git
+      - # write the ssh key to disk
+      - mkdir /root/.ssh
+      - echo -n "$${SSH_KEY}" > /root/.ssh/id_rsa
+      - chmod 600 /root/.ssh/id_rsa
+
+      # add github to known hosts
+      - touch /root/.ssh/known_hosts
+      - chmod 600 /root/.ssh/known_hosts
+      - ssh-keyscan -H github.com > /etc/ssh/ssh_known_hosts 2> /dev/null
+      - git clone github.com/modeseven/cluster.git
       - cd cluster/environments/staging/
       - kustomize edit set image modeseven/${DRONE_REPO_NAME}:${DRONE_SOURCE_BRANCH/\//-}-${DRONE_COMMIT_SHA:0:8}
       - git add .
