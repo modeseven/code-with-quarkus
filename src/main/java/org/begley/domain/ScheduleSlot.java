@@ -18,12 +18,15 @@ import javax.persistence.MapsId;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity(name="schedule_slot")
+//@Indexed
 public class ScheduleSlot extends PanacheEntity {
-
+  //  @FullTextField(analyzer = "english")
     public String locationName;
     public String zip;
 

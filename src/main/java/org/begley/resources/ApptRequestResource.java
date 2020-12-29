@@ -1,6 +1,8 @@
 package org.begley.resources;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,6 +23,10 @@ import org.begley.domain.AppointmentType;
 import org.begley.domain.BookingRequest;
 import org.begley.domain.ScheduleSlot;
 import org.begley.services.NatsBroker;
+import org.hibernate.search.mapper.orm.Search;
+import org.jboss.resteasy.annotations.jaxrs.QueryParam;
+
+import io.quarkus.runtime.StartupEvent;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
@@ -33,6 +39,37 @@ public class ApptRequestResource {
 
     @Inject
     NatsBroker nats;
+
+    @Inject
+    EntityManager em;
+
+    @Transactional 
+    void onStart(@Observes StartupEvent ev) throws InterruptedException { 
+        // only reindex if we imported some content
+        if (AppointmentRequest.count() > 0) {
+            Search.session(em)
+                    .massIndexer()
+                    .startAndWait();
+        }
+    }
+
+    @GET
+    @Path("/search") 
+    @Transactional
+    public List<AppointmentRequest> searchAuthors(@QueryParam String pattern, 
+            @QueryParam Optional<Integer> size) {
+                System.out.println("search is happening?" + pattern);
+        return Search.session(em) 
+                .search(AppointmentRequest.class) 
+                .where(f ->
+                    pattern == null || pattern.trim().isEmpty() ?
+                            f.matchAll() : 
+                            f.simpleQueryString()
+                                .fields("firstName", "lastName").matching(pattern) //"books.title" todo: add more late?
+                )
+                .sort(f -> f.field("lastName_sort").then().field("firstName_sort")) 
+                .fetchHits(size.orElse(20)); 
+    }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
