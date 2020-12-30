@@ -24,9 +24,9 @@ import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity(name="schedule_slot")
-//@Indexed
+@Indexed
 public class ScheduleSlot extends PanacheEntity {
-  //  @FullTextField(analyzer = "english")
+    @FullTextField(analyzer = "english")
     public String locationName;
     public String zip;
 

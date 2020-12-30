@@ -71,7 +71,7 @@ public class AppointmentRequest extends PanacheEntity {
    // @LazyToOne(LazyToOneOption.NO_PROXY)
     //@JoinColumn(name = "slot_id")
   //  @Fetch(value = FetchMode.JOIN)
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   //  @IndexedEmbedded 
    // @JoinColumn(name = "id")
     public ScheduleSlot scheduleSlot;

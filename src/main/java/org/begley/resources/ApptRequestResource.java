@@ -120,8 +120,9 @@ public class ApptRequestResource {
     public Response bookingRequest(BookingRequest bookrqst) {
         return AppointmentRequest.findByIdOptional(bookrqst.id)
             .map(u -> {
-
+                Faker faker = new Faker();
                 ScheduleSlot ss = new ScheduleSlot();
+                ss.locationName = faker.lordOfTheRings().character();
 
                 AppointmentRequest appt = (AppointmentRequest) u;
                 appt.appointmentStatus = AppointmentStatus.BOOKED;
