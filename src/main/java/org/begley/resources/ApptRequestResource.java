@@ -26,6 +26,9 @@ import org.begley.services.NatsBroker;
 import org.hibernate.search.mapper.orm.Search;
 import org.jboss.resteasy.annotations.jaxrs.QueryParam;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import io.quarkus.runtime.StartupEvent;
 
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -74,7 +77,8 @@ public class ApptRequestResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<AppointmentRequest> apptRqst() {
-        return AppointmentRequest.listAll();
+        PanacheQuery<AppointmentRequest> request = AppointmentRequest.findAll(Sort.by("createDateTime"));
+        return request.page(Page.ofSize(25)).list();
     }
 
     @Transactional
