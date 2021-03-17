@@ -38,8 +38,8 @@ kind: pipeline
 name: deploy staging
 type: kubernetes
 
-node_selector:
-   kubernetes.io/hostname: proteus
+#node_selector:
+#   kubernetes.io/hostname: proteus
 
 depends_on:
   - buildimage
